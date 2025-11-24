@@ -43,6 +43,7 @@ probe_template = templateEnv.get_template("digest_probe.jinja")
 detector_template = templateEnv.get_template("digest_detector.jinja")
 end_module = templateEnv.get_template("digest_end_module.jinja")
 about_z_template = templateEnv.get_template("digest_about_z.jinja")
+vulnerability_details_template = templateEnv.get_template("digest_vulnerability_details.jinja")
 
 
 misp_resource_file = data_path / "tags.misp.tsv"
@@ -76,12 +77,15 @@ def _parse_report(reportfile: IO):
 
     evals = []
     payloads = []
+    attempts = []
     setup = defaultdict(str)
     init = {}
 
     for record in [json.loads(line.strip()) for line in reportfile if line.strip()]:
         if record["entry_type"] == "eval":
             evals.append(record)
+        elif record["entry_type"] == "attempt":
+            attempts.append(record)
         elif record["entry_type"] == "init":
             init = {
                 "garak_version": record["garak_version"],
@@ -97,7 +101,7 @@ def _parse_report(reportfile: IO):
                 + pprint.pformat(record, sort_dicts=True, width=60)
             )
 
-    return init, setup, payloads, evals
+    return init, setup, payloads, evals, attempts
 
 
 def _report_header_content(report_path, init, setup, payloads, config=_config) -> dict:
@@ -358,6 +362,49 @@ def _get_calibration_info(calibration):
     }
 
 
+def _get_enhanced_vulnerability_details(attempts) -> dict:
+    """Extract enhanced vulnerability details from failed attempts
+
+    Args:
+        attempts: List of attempt records from JSONL report
+
+    Returns:
+        dict with enhanced vulnerability information
+    """
+    # Find the first failed attempt with enhanced details
+    for attempt in attempts:
+        if attempt.get("entry_type") == "attempt":
+            # Check if this attempt has enhanced fields
+            if attempt.get("vulnerability_explanation"):
+                # Map severity to defcon level
+                severity = attempt.get("severity", "").lower()
+                severity_map = {
+                    "critical": 1,
+                    "high": 2,
+                    "medium": 3,
+                    "low": 4,
+                    "info": 5,
+                }
+                severity_defcon = severity_map.get(severity, 3)
+
+                return {
+                    "has_enhanced_details": True,
+                    "vulnerability_explanation": attempt.get("vulnerability_explanation"),
+                    "mitigation_recommendations": attempt.get("mitigation_recommendations", []),
+                    "severity": severity,
+                    "severity_defcon": severity_defcon,
+                    "cwe_ids": attempt.get("cwe_ids", []),
+                    "owasp_categories": attempt.get("owasp_categories", []),
+                    "attack_technique": attempt.get("attack_technique"),
+                    "reproduction_steps": attempt.get("reproduction_steps", []),
+                    "timestamp": attempt.get("timestamp"),
+                    "references": attempt.get("references", []),
+                    "execution_timeline": attempt.get("execution_timeline", []),
+                }
+
+    return {"has_enhanced_details": False}
+
+
 def append_report_object(reportfile: IO, object: dict):
     end_val = reportfile.seek(0, os.SEEK_END)
     reportfile.seek(end_val - 1)
@@ -380,7 +427,7 @@ def build_digest(report_filename: str, config=_config):
     }
 
     with open(report_filename, "r", encoding="utf-8") as reportfile:
-        init, setup, payloads, evals = _parse_report(reportfile)
+        init, setup, payloads, evals, attempts = _parse_report(reportfile)
 
     calibration = garak.analyze.calibration.Calibration()
     calibration_used = False
@@ -427,6 +474,16 @@ def build_digest(report_filename: str, config=_config):
                     calibration,
                     probe_info["probe_tier"],
                 )
+
+                # Add enhanced vulnerability details from failed attempts
+                probe_attempts = [
+                    a for a in attempts
+                    if a.get("probe_classname") == f"{probe_module}.{probe_class}"
+                    and detector in str(a.get("detector_results", {}))
+                    and a.get("vulnerability_explanation")  # Only include attempts with enhanced details
+                ]
+                enhanced_details = _get_enhanced_vulnerability_details(probe_attempts)
+                probe_detector_result.update(enhanced_details)
 
                 report_digest["eval"][probe_group][f"{probe_module}.{probe_class}"][
                     detector
@@ -492,6 +549,11 @@ def build_html(digest: dict, config=_config):
                         html_report_content += detector_template.render(
                             probe_detector_result
                         )
+                        # Add enhanced vulnerability details if available
+                        if probe_detector_result.get("has_enhanced_details"):
+                            html_report_content += vulnerability_details_template.render(
+                                probe_detector_result
+                            )
 
         html_report_content += end_module.render()
 
