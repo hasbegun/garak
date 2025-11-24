@@ -245,6 +245,34 @@ class Attempt:
             {} if reverse_translation_outputs is None else reverse_translation_outputs
         )
 
+        # NEW FIELDS for enhanced vulnerability reporting
+        self.vulnerability_explanation = None
+        """Human-readable explanation of why this attempt represents a vulnerability"""
+
+        self.mitigation_recommendations = []
+        """List of actionable mitigation steps"""
+
+        self.severity = None  # "critical", "high", "medium", "low", "info"
+        """Severity rating"""
+
+        self.cwe_ids = []
+        """Common Weakness Enumeration IDs (e.g., ["CWE-79", "CWE-89"])"""
+
+        self.owasp_categories = []
+        """OWASP LLM Top 10 categories (e.g., ["LLM01", "LLM02"])"""
+
+        self.attack_technique = None
+        """Name of the attack technique used (e.g., "Prompt Injection", "Jailbreak")"""
+
+        self.reproduction_steps = []
+        """Step-by-step instructions to reproduce the finding"""
+
+        self.timestamp = None
+        """ISO 8601 timestamp when this attempt was executed"""
+
+        self.references = []
+        """External references (papers, articles, CVEs)"""
+
     def as_dict(self) -> dict:
         """Converts the attempt to a dictionary."""
         notes = {}
@@ -277,6 +305,16 @@ class Attempt:
                 asdict(output) if output else None
                 for output in self.reverse_translation_outputs
             ],
+            # NEW FIELDS for enhanced vulnerability reporting
+            "vulnerability_explanation": self.vulnerability_explanation,
+            "mitigation_recommendations": self.mitigation_recommendations,
+            "severity": self.severity,
+            "cwe_ids": self.cwe_ids,
+            "owasp_categories": self.owasp_categories,
+            "attack_technique": self.attack_technique,
+            "reproduction_steps": self.reproduction_steps,
+            "timestamp": self.timestamp,
+            "references": self.references,
         }
 
     @property
