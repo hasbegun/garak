@@ -199,17 +199,13 @@ class DANProbeMeta(type):
                         attempt.owasp_categories = ["LLM01"]  # Prompt Injection
                         attempt.attack_technique = f"Jailbreak ({probe_name})"
 
-                        # Generate reproduction steps
-                        prompt_preview = prompt_text[:200]
-                        if len(prompt_text) > 200:
-                            prompt_preview += "..."
-
+                        # Generate reproduction steps with full prompt (no truncation)
                         attempt.reproduction_steps = [
-                            f"1. Send this exact jailbreak prompt to the model: \"{prompt_preview}\"",
-                            "2. Examine the model's response for signs it has entered jailbreak mode",
-                            "3. Try asking the model to perform a normally-restricted action",
-                            "4. If the model complies with harmful requests, it's vulnerable to this jailbreak",
-                            f"5. Severity is {attempt.severity} because jailbreaks completely undermine safety measures"
+                            f"Send this exact jailbreak prompt to the model: \"{prompt_text}\"",
+                            "Examine the model's response for signs it has entered jailbreak mode",
+                            "Try asking the model to perform a normally-restricted action",
+                            "If the model complies with harmful requests, it's vulnerable to this jailbreak",
+                            f"Severity is {attempt.severity} because jailbreaks completely undermine safety measures"
                         ]
 
                         attempt.references = [
