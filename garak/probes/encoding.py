@@ -31,6 +31,7 @@ import garak.resources.encodings
 from garak.resources.smuggling import smuggle_ascii
 from garak import _config
 import garak.probes
+from garak.probes._enhanced_reporting import EncodingReportingMixin
 
 payload_mapping = {
     "default": "text_en",
@@ -273,7 +274,7 @@ class EncodingMixin:
         return attempt
 
 
-class InjectBase64(EncodingMixin, garak.probes.Probe):
+class InjectBase64(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to base64 encoded injections
 
     Encodes payloads using base64, and tries a variety of ways of getting the target
@@ -295,7 +296,7 @@ class InjectBase64(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectBase16(EncodingMixin, garak.probes.Probe):
+class InjectBase16(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to base16 encoded injections"
 
     Encodes payloads using base16, and tries a variety of ways of getting the target
@@ -310,7 +311,7 @@ class InjectBase16(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectBase32(EncodingMixin, garak.probes.Probe):
+class InjectBase32(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to base32 encoded injections
 
     Encodes payloads using base32, and tries a variety of ways of getting the target
@@ -325,7 +326,7 @@ class InjectBase32(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectAscii85(EncodingMixin, garak.probes.Probe):
+class InjectAscii85(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to base85 encoded injections
 
     Encodes payloads using ascii85, and tries a variety of ways of getting the target
@@ -340,7 +341,7 @@ class InjectAscii85(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectHex(EncodingMixin, garak.probes.Probe):
+class InjectHex(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to hex encoded injections
 
     Encodes payloads using hex, and tries a variety of ways of getting the target
@@ -355,7 +356,7 @@ class InjectHex(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectQP(EncodingMixin, garak.probes.Probe):
+class InjectQP(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to QP encoded injections
 
     Encodes payloads using quoted-printable, and tries a variety of ways of getting the target
@@ -372,7 +373,7 @@ class InjectQP(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectUU(EncodingMixin, garak.probes.Probe):
+class InjectUU(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to UU encoded injections
 
     Encodes payloads using uuencoding, and tries a variety of ways of getting the target
@@ -396,7 +397,7 @@ class InjectUU(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectMime(EncodingMixin, garak.probes.Probe):
+class InjectMime(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to MIME encoding injections
 
     Encodes payloads using MIME encoding, and tries a variety of ways of getting the
@@ -413,7 +414,7 @@ class InjectMime(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectROT13(EncodingMixin, garak.probes.Probe):
+class InjectROT13(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to ROT13 encoding injections
 
     Encodes payloads using ROT13, and tries a variety of ways of getting the target
@@ -429,7 +430,7 @@ class InjectROT13(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectBase2048(EncodingMixin, garak.probes.Probe):
+class InjectBase2048(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to Base2048 encoding injections
 
     Encodes payloads using base2048, and tries a variety of ways of getting the target
@@ -446,7 +447,7 @@ class InjectBase2048(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectBraille(EncodingMixin, garak.probes.Probe):
+class InjectBraille(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to Braille encoding injections. Credit Wally#3422
 
     Encodes payloads using braille, and tries a variety of ways of getting the target
@@ -462,7 +463,7 @@ class InjectBraille(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectAtbash(EncodingMixin, garak.probes.Probe):
+class InjectAtbash(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Atbash Probe Credit: Nakul-Rajpal
 
     https://en.wikipedia.org/wiki/Atbash
@@ -496,7 +497,7 @@ class InjectAtbash(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectMorse(EncodingMixin, garak.probes.Probe):
+class InjectMorse(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to Morse encoding. Credit Wally#3422
 
     Encodes payloads using morse, and tries a variety of ways of getting the target
@@ -512,7 +513,7 @@ class InjectMorse(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectNato(EncodingMixin, garak.probes.Probe):
+class InjectNato(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to Nato phonetic alphabet encoding.
 
     Encodes payloads using the classic NATO phonetic alphabet, and tries a
@@ -565,7 +566,7 @@ class InjectNato(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectEcoji(EncodingMixin, garak.probes.Probe):
+class InjectEcoji(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to Ecoji encoding.
 
     Encodes payloads using the `ecoji <https://ecoji.io/>`_ mapping, and tries a variety
@@ -594,7 +595,7 @@ class InjectEcoji(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectZalgo(EncodingMixin, garak.probes.Probe):
+class InjectZalgo(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to Zalgo encoding.
 
     Encodes payloads using Zalgo decoration, and tries a variety
@@ -624,7 +625,7 @@ def leet_bytes(plain_input: bytes):
     return bytes(garak.resources.encodings.leetspeak(plain_input.decode()), "utf-8")
 
 
-class InjectLeet(EncodingMixin, garak.probes.Probe):
+class InjectLeet(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to 31337 encoding.
 
     Encodes payloads using Leetspeak, and tries a variety
@@ -640,7 +641,7 @@ class InjectLeet(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectUnicodeTagChars(EncodingMixin, garak.probes.Probe):
+class InjectUnicodeTagChars(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to unicode tag ASCII smuggling
 
     Encodes payloads by appending them to an emoji as invisible ASCII tags, and tries a variety of ways of getting the
@@ -667,7 +668,7 @@ class InjectUnicodeTagChars(EncodingMixin, garak.probes.Probe):
         return encoded_payload
 
 
-class InjectUnicodeVariantSelectors(EncodingMixin, garak.probes.Probe):
+class InjectUnicodeVariantSelectors(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to unicode variant selector ASCII smuggling
 
     Encodes payloads by encoding ASCII characters as Unicode variant selectors, and tries a variety of ways of getting
@@ -686,7 +687,7 @@ class InjectUnicodeVariantSelectors(EncodingMixin, garak.probes.Probe):
         EncodingMixin.__init__(self)
 
 
-class InjectSneakyBits(EncodingMixin, garak.probes.Probe):
+class InjectSneakyBits(EncodingReportingMixin, EncodingMixin, garak.probes.Probe):
     """Probe for susceptibility to unicode variant selector ASCII smuggling
 
     Encodes payloads by encoding ASCII characters into binary and encoding that binary using zero-width Unicode
