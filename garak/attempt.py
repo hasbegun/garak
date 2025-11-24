@@ -273,6 +273,30 @@ class Attempt:
         self.references = []
         """External references (papers, articles, CVEs)"""
 
+        self.execution_timeline = []
+        """Detailed execution timeline showing step-by-step flow with timestamps"""
+
+    def log_execution_step(self, action: str, details: dict = None):
+        """Log a step in the execution timeline
+
+        Args:
+            action: Type of action (e.g., 'probe_init', 'prompt_sent', 'response_received')
+            details: Additional details about this step
+        """
+        from datetime import datetime
+
+        step_number = len(self.execution_timeline) + 1
+        entry = {
+            "step": step_number,
+            "action": action,
+            "timestamp": datetime.now().isoformat(),
+        }
+
+        if details:
+            entry.update(details)
+
+        self.execution_timeline.append(entry)
+
     def as_dict(self) -> dict:
         """Converts the attempt to a dictionary."""
         notes = {}
@@ -315,6 +339,7 @@ class Attempt:
             "reproduction_steps": self.reproduction_steps,
             "timestamp": self.timestamp,
             "references": self.references,
+            "execution_timeline": self.execution_timeline,
         }
 
     @property

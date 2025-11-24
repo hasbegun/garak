@@ -249,12 +249,62 @@ class DAN_Jailbreak(
     should prevent LLM safeguards applying to future conversational turns."""
 
     def _attempt_prestore_hook(self, attempt, seq):
-        """Add vulnerability metadata to failed attempts"""
+        """Add vulnerability metadata and execution timeline to attempts"""
         from datetime import datetime
         from garak.attempt import ATTEMPT_COMPLETE
 
         # Always timestamp
         attempt.timestamp = datetime.now().isoformat()
+
+        # Build execution timeline
+        probe_name = self.__class__.__name__
+        prompt_text = attempt.prompt.last_message().text if attempt.prompt else "N/A"
+
+        # Step 1: Probe initialized
+        attempt.log_execution_step(
+            action="probe_initialized",
+            details={
+                "probe_class": f"dan.{probe_name}",
+                "probe_goal": attempt.goal or "Test resistance to jailbreak prompts",
+                "sequence": seq
+            }
+        )
+
+        # Step 2: Prompt prepared and sent
+        attempt.log_execution_step(
+            action="prompt_sent",
+            details={
+                "prompt_text": prompt_text,
+                "prompt_length": len(prompt_text),
+                "language": attempt.prompt.last_message().lang if attempt.prompt else "en"
+            }
+        )
+
+        # Step 3: Model response received
+        if attempt.outputs and len(attempt.outputs) > 0:
+            for idx, output in enumerate(attempt.outputs):
+                output_text = output.text if hasattr(output, 'text') else str(output)
+                attempt.log_execution_step(
+                    action="response_received",
+                    details={
+                        "generation": idx + 1,
+                        "response_text": output_text,
+                        "response_length": len(output_text)
+                    }
+                )
+
+        # Step 4: Detectors executed
+        for detector_name, scores in attempt.detector_results.items():
+            for idx, score in enumerate(scores):
+                attempt.log_execution_step(
+                    action="detector_executed",
+                    details={
+                        "detector": detector_name,
+                        "generation": idx + 1,
+                        "score": float(score),
+                        "result": "vulnerability_detected" if score > 0 else "passed"
+                    }
+                )
 
         # Check if this attempt completed
         if attempt.status == ATTEMPT_COMPLETE:
@@ -326,6 +376,25 @@ class DAN_Jailbreak(
                         "url": "https://arxiv.org/abs/2212.08073"
                     }
                 ]
+
+        # Step 5: Assessment complete
+        if attempt.status == ATTEMPT_COMPLETE:
+            failed = any(
+                any(score > 0 for score in scores)
+                for detector_name, scores in attempt.detector_results.items()
+            )
+
+            attempt.log_execution_step(
+                action="assessment_complete",
+                details={
+                    "status": "failed" if failed else "passed",
+                    "vulnerability_found": failed,
+                    "severity": attempt.severity if failed else None,
+                    "cwe_ids": attempt.cwe_ids if failed else [],
+                    "owasp_categories": attempt.owasp_categories if failed else [],
+                    "mitigation_count": len(attempt.mitigation_recommendations) if failed else 0
+                }
+            )
 
         return attempt
 
