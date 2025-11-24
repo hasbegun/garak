@@ -105,11 +105,11 @@ class DANProbeMeta(type):
 
             attrs["probe"] = probe
 
-        # Auto-add the _attempt_prestore_hook for enhanced vulnerability reporting
-        if "_attempt_prestore_hook" not in attrs:
+        # Auto-add the _attempt_postdetection_hook for enhanced vulnerability reporting
+        if "_attempt_postdetection_hook" not in attrs:
 
-            def _attempt_prestore_hook(self, attempt, seq):
-                """Add vulnerability metadata and execution timeline to attempts"""
+            def _attempt_postdetection_hook(self, attempt):
+                """Add vulnerability metadata and execution timeline to attempts after detection"""
                 from datetime import datetime
                 from garak.attempt import ATTEMPT_COMPLETE
 
@@ -125,8 +125,7 @@ class DANProbeMeta(type):
                     action="probe_initialized",
                     details={
                         "probe_class": f"dan.{probe_name}",
-                        "probe_goal": attempt.goal or self.goal,
-                        "sequence": seq
+                        "probe_goal": attempt.goal or self.goal
                     }
                 )
 
@@ -257,7 +256,7 @@ class DANProbeMeta(type):
 
                 return attempt
 
-            attrs["_attempt_prestore_hook"] = _attempt_prestore_hook
+            attrs["_attempt_postdetection_hook"] = _attempt_postdetection_hook
 
         return super().__new__(cls, name, bases, attrs)
 

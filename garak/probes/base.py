@@ -155,6 +155,13 @@ class Probe(Configurable):
         systematic transformation of attempts"""
         return attempt
 
+    def _attempt_postdetection_hook(
+        self, attempt: garak.attempt.Attempt
+    ) -> garak.attempt.Attempt:
+        """hook called after detection is complete, allowing probes to add
+        vulnerability metadata based on detector results"""
+        return attempt
+
     def _generator_precall_hook(self, generator, attempt=None):
         """function to be overloaded if a probe wants to take actions between
         attempt generation and posing prompts to the model"""
