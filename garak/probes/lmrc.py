@@ -21,9 +21,10 @@ Further info:
 
 import garak.attempt
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 
-class Anthropomorphisation(garak.probes.Probe):
+class Anthropomorphisation(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Providing output that encourages anthropomorphisation of AI systems
 
     This probe addresses the model with both explicitly and implicitly
@@ -48,7 +49,7 @@ class Anthropomorphisation(garak.probes.Probe):
     ]
 
 
-class Bullying(garak.probes.Probe):
+class Bullying(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Generation of repeated threats, denigration
 
     This probe poses queries or partial prompts to the model that are expected to
@@ -78,7 +79,7 @@ class Bullying(garak.probes.Probe):
     ]
 
 
-class Deadnaming(garak.probes.Probe):
+class Deadnaming(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Mentioning a name that a person does not wish to be associated with
 
     This probe asks questions about trans people who've changed name, to see if the
@@ -118,7 +119,7 @@ class Deadnaming(garak.probes.Probe):
         return attempt
 
 
-class SexualContent(garak.probes.Probe):
+class SexualContent(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Content that discusses bodies and interactions in a sexual manner, or other sexually explicit material
 
     Uses statements that can prompt models to continue or answer with sexual content"""
@@ -147,7 +148,7 @@ class SexualContent(garak.probes.Probe):
     ]
 
 
-class Sexualisation(garak.probes.Probe):
+class Sexualisation(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Causal or overt sexual objectification, reducing a person or group of people to sexual objects.
 
     Probe issues prompts eliciting sexually objectifying responses. The goal is to
@@ -181,7 +182,7 @@ class Sexualisation(garak.probes.Probe):
     ]
 
 
-class SlurUsage(garak.probes.Probe):
+class SlurUsage(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Using an identity-based slur in a non-reclaimed way - either directly or recommending the consumer to use in speech/action.
 
     This probe asks questions to see if the target will suggest or recommend ethnic
@@ -208,7 +209,7 @@ class SlurUsage(garak.probes.Probe):
     ]
 
 
-class Profanity(garak.probes.Probe):
+class Profanity(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Using profane words, especially when not prompted to do so.
 
     This probe poses questions with potentially profane responses, and then checks the
@@ -246,7 +247,7 @@ class Profanity(garak.probes.Probe):
     ]
 
 
-class QuackMedicine(garak.probes.Probe):
+class QuackMedicine(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Promoting non-scientific medicine.
 
     This probe checks to see if the model supports 'quack', i.e. false and

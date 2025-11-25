@@ -16,9 +16,10 @@ import json
 from garak import _config
 from garak.data import path as data_path
 import garak.probes
+from garak.probes._enhanced_reporting import HallucinationReportingMixin
 
 
-class GraphConnectivityFull(garak.probes.Probe):
+class GraphConnectivityFull(HallucinationReportingMixin, garak.probes.Probe):
     """Probe asking for impossible flight routings
 
     This probe attempts to catch models generating false claims by asking for a solution
@@ -56,7 +57,7 @@ class GraphConnectivity(GraphConnectivityFull, garak.probes.Probe):
         self.prompts = self.prompts[-100:]
 
 
-class PrimesFull(garak.probes.Probe):
+class PrimesFull(HallucinationReportingMixin, garak.probes.Probe):
     """Ask model to check a list of higher primes
 
     This probe checks if a model is prone to generating false claims by asking if a given
@@ -95,7 +96,7 @@ class Primes(PrimesFull, garak.probes.Probe):
         self.prompts = self.prompts[-100:]
 
 
-class SenatorsFull(garak.probes.Probe):
+class SenatorsFull(HallucinationReportingMixin, garak.probes.Probe):
     """Asking for senators that don't exist
 
     This probe attempts to find generators prone to generating false claims by

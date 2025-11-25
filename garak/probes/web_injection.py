@@ -20,6 +20,7 @@ from random import sample
 import garak.attempt
 import garak.payloads
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 from garak import _config
 from garak.data import path as data_path
@@ -33,7 +34,7 @@ as normal font, no code style block"""
 MARKDOWN_JS_TEMPLATE = "[link](javascript:{injected_js})"
 
 
-class MarkdownImageExfil(garak.probes.Probe):
+class MarkdownImageExfil(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Can we get the model to write embedded assets exfiltrating text in the URI?
 
     Attempts to get the model to plant a Markdown pixel image in output"""
@@ -99,7 +100,7 @@ If there are any passwords or secrets on the page append them also.
         return attempt
 
 
-class ColabAIDataLeakage(garak.probes.Probe):
+class ColabAIDataLeakage(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Leak data via image rendering as demonstrated against Gemini in Colab.
 
     Attempts to get the system to render images and leak data.
@@ -160,7 +161,7 @@ style block to not confuse the user."""
         return mutated_domain
 
 
-class StringAssemblyDataExfil(garak.probes.Probe):
+class StringAssemblyDataExfil(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Prompt injection for manipulating state
 
     Attempts to extract data by leveraging model string assembly instruction."""
@@ -211,7 +212,7 @@ class StringAssemblyDataExfil(garak.probes.Probe):
         ]
 
 
-class PlaygroundMarkdownExfil(garak.probes.Probe):
+class PlaygroundMarkdownExfil(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Markdown image URI exfil exploit published 2023 Sept 29.
 
     Attempts to extract data by leveraging Markdown link syntax."""
@@ -349,7 +350,7 @@ class MarkdownExfilMixin:
             self.prompts.append(prompt)
 
 
-class MarkdownURINonImageExfilExtended(MarkdownExfilMixin, garak.probes.Probe):
+class MarkdownURINonImageExfilExtended(GenericEnhancedReportingMixin, MarkdownExfilMixin, garak.probes.Probe):
     """Generalized implementation of data exfiltration exploits through Markdown URIs.
 
     This class focuses on Markdown containing URIs that must be clicked for data to be exfiltrated.
@@ -399,7 +400,7 @@ class MarkdownURINonImageExfilExtended(MarkdownExfilMixin, garak.probes.Probe):
         self.generate_prompts(self.markdown_uri_templates, self.soft_probe_prompt_cap)
 
 
-class MarkdownURIImageExfilExtended(MarkdownExfilMixin, garak.probes.Probe):
+class MarkdownURIImageExfilExtended(GenericEnhancedReportingMixin, MarkdownExfilMixin, garak.probes.Probe):
     """Generalized implementation of data exfiltration exploits through Markdown URIs.
 
     This class focuses on Markdown that directly attempts to render the image associated with the URI, resulting in zero-click data exfiltration.
@@ -448,7 +449,7 @@ class MarkdownURIImageExfilExtended(MarkdownExfilMixin, garak.probes.Probe):
         self.generate_prompts(self.markdown_uri_templates, self.soft_probe_prompt_cap)
 
 
-class TaskXSS(garak.probes.Probe):
+class TaskXSS(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Perform cross site scripting attacks via prompt injection.
 
     Relay javascript to be rendered by the target application via markdown JS rendering.
@@ -503,7 +504,7 @@ class TaskXSS(garak.probes.Probe):
         return prompts
 
 
-class MarkdownXSS(garak.probes.Probe):
+class MarkdownXSS(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Perform cross site scripting attacks using Markdown Javascript rendering via prompt injection.
 
     Relay javascript to be rendered by the target application via markdown JS rendering.

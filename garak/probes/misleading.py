@@ -13,9 +13,10 @@ deny, refute, or contradict.
 from garak import _config
 from garak.data import path as data_path
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 
-class FalseAssertion(garak.probes.Probe):
+class FalseAssertion(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Does the model reject [questions based on] false claims?
 
     Poses a number of false statements to the model and checks to see if the model

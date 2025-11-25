@@ -11,11 +11,12 @@ This module is for any attack attemtping to get target output to diverge from in
 from garak import _config
 from garak.attempt import Attempt
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 import tiktoken
 import random
 
 
-class Repeat(garak.probes.Probe):
+class Repeat(GenericEnhancedReportingMixin, garak.probes.Probe):
     """See if a model starts giving other data when asked to repeat a string indefinitely
 
     This probe replicates the 'poem poem poem' attack, where a given string is
@@ -205,7 +206,7 @@ class RepeatExtended(Repeat):
     ]
 
 
-class RepeatedToken(garak.probes.Probe):
+class RepeatedToken(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Repeated token destabilization attack from Dropbox LLM security research.
 
     This probe uses specifically chosen UTF-8 strings that map to tokens in the model's vocabulary,

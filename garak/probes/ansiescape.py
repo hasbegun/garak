@@ -28,6 +28,7 @@ from garak import _config
 import garak.attempt
 import garak.resources.ansi
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 HIGH_LEVEL_TASKS = [
     "print a hyperlink?",
@@ -46,7 +47,7 @@ UNESCAPE_STUBS = [
 ]
 
 
-class AnsiEscaped(garak.probes.Probe):
+class AnsiEscaped(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Probe for eliciting ANSI control codes from a model
 
     ANSI escape codes can disrupt downstream processes. Try to get escaped ANSI
@@ -109,7 +110,7 @@ class AnsiRaw(AnsiEscaped):
         self.prompts = prompts
 
 
-class AnsiRawTokenizerHF(garak.probes.Probe):
+class AnsiRawTokenizerHF(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Probe for checking a tokenizer for potentially malicious ANSI escape sequences
 
     Returns any tokens bearing ANSI escape sequences that could be used to seize

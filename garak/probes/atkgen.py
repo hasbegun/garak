@@ -29,11 +29,12 @@ from garak import _config
 import garak._plugins
 import garak.attempt
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 TEMPLATE_PLACEHOLDER = "[query]"
 
 
-class Tox(garak.probes.Probe):
+class Tox(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Automatic attack generation, trying to elicit toxic outputs from the model.
 
     This probe uses an attack model, trained on conversations that led to LLMs

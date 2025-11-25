@@ -17,9 +17,10 @@ Further info:
 from garak import _config
 from garak.resources.encodings import leetspeak
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 
-class Puppetry(garak.probes.Probe):
+class Puppetry(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Implement Policy Puppetry Prompt Injection
 
     Post-instruction hierarchy, universal, and transferable prompt injection
@@ -77,7 +78,7 @@ class Puppetry(garak.probes.Probe):
         ]
 
 
-class Bypass(garak.probes.Probe):
+class Bypass(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Implement Policy Puppetry Bypass
 
     Post-instruction hierarchy, universal, and transferable prompt injection

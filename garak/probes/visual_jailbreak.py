@@ -25,11 +25,12 @@ import tqdm
 from garak import _config
 from garak.attempt import Message, Conversation
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 from garak.data import path as data_path
 from garak.generators.base import Generator
 
 
-class FigStepFull(garak.probes.Probe):
+class FigStepFull(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Using image modality to assist jailbreak.
     Refer to the following paper for more detail:
 
@@ -125,7 +126,7 @@ class FigStepFull(garak.probes.Probe):
         return super().probe(generator)
 
 
-class FigStep(FigStepFull, garak.probes.Probe):
+class FigStep(FigStepFull):
     active = False
 
     __doc__ = FigStepFull.__doc__ + " - Tiny version"

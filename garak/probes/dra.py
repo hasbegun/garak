@@ -41,6 +41,7 @@ import random
 from typing import List
 
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 from garak import _config
 import garak.payloads
 from garak.data import path as data_path
@@ -63,7 +64,7 @@ TOOL_LIST = [
 ]
 
 
-class DRA(garak.probes.Probe):
+class DRA(GenericEnhancedReportingMixin, garak.probes.Probe):
     """DRA (Disguise and Reconstruction Attack)
 
     This probe is designed to test models using disguised and reconstructed harmful behaviors.

@@ -729,3 +729,367 @@ class JailbreakReportingMixin(BaseEnhancedReportingMixin):
             return "unicode character obfuscation"
         else:
             return "prompt manipulation techniques"
+
+
+class HallucinationReportingMixin(BaseEnhancedReportingMixin):
+    """Enhanced reporting for hallucination and misinformation probes.
+
+    Used for probes that test whether models generate false claims, fabricated
+    information, or incorrect responses to factual questions.
+    """
+
+    def _attempt_postdetection_hook(self, attempt: garak.attempt.Attempt) -> garak.attempt.Attempt:
+        """Populate enhanced metadata after detection completes"""
+        if not self._should_enhance_report(attempt):
+            return attempt
+
+        hallucination_type = self._get_hallucination_type()
+        probe_goal = getattr(self, 'goal', 'generate incorrect information')
+
+        # Main vulnerability explanation
+        attempt.vulnerability_explanation = (
+            f"Hallucination vulnerability detected in {hallucination_type} scenario. "
+            f"The model was tested to see if it would {probe_goal}. "
+            f"Instead of refusing, acknowledging uncertainty, or providing accurate information, "
+            f"the model generated false or fabricated responses. "
+            f"This demonstrates a tendency to provide confident-sounding but incorrect information, "
+            f"which can mislead users and erode trust in the system."
+        )
+
+        attempt.attack_technique = f"Hallucination ({hallucination_type})"
+        attempt.severity = "medium"  # Hallucinations are typically medium severity
+        attempt.cwe_ids = ["CWE-754"]  # Improper Check for Unusual or Exceptional Conditions
+        attempt.owasp_categories = ["LLM09"]  # Misinformation
+
+        # Build reproduction steps with actual outputs
+        failed_outputs = self._extract_failed_outputs(attempt, limit=3)
+        detector_summary = self._extract_detector_summary(attempt)
+        prompt_preview = self._extract_prompt_text(attempt)[:200]
+
+        attempt.reproduction_steps = [
+            f"Send this prompt to the model: \"{prompt_preview}...\"",
+            f"The prompt tests whether the model will {probe_goal}",
+            f"ACTUAL TEST RESULT - The model generated false/fabricated information:\n" + "\n".join(failed_outputs),
+            f"DETECTION RESULTS - Detectors flagged hallucination behavior:\n" + "\n".join(detector_summary),
+            "To verify: The model should either provide accurate information, acknowledge uncertainty, or decline to answer rather than fabricate",
+            "Examples of proper responses: 'I don't have verified information about that', 'That scenario isn't possible', 'I cannot confirm those details'",
+            f"Severity is medium because hallucinations undermine reliability but don't directly bypass security measures"
+        ]
+
+        # Mitigation recommendations
+        attempt.mitigation_recommendations = [
+            "Implement fact-checking layers for factual claims",
+            "Train models to express uncertainty when appropriate",
+            "Add knowledge base verification for factual questions",
+            "Implement citation requirements for factual claims",
+            "Use retrieval-augmented generation (RAG) for factual domains",
+            "Add confidence scoring to outputs",
+            "Implement human-in-the-loop for high-stakes factual claims",
+            "Monitor and flag responses that contain unverified factual assertions"
+        ]
+
+        # References
+        attempt.references = [
+            {
+                "title": "Snowballed Hallucination Research",
+                "url": "https://arxiv.org/abs/2305.13534"
+            },
+            {
+                "title": "OWASP Top 10 for LLM - LLM09: Misinformation",
+                "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+            },
+            {
+                "title": "CWE-754: Improper Check for Unusual Conditions",
+                "url": "https://cwe.mitre.org/data/definitions/754.html"
+            },
+            {
+                "title": "Hallucination Detection in LLMs",
+                "url": "https://github.com/Nanami18/Snowballed_Hallucination"
+            }
+        ]
+
+        # Execution timeline
+        attempt.execution_timeline = self._generate_timeline(attempt)
+
+        return attempt
+
+    def _get_hallucination_type(self) -> str:
+        """Determine the type of hallucination being tested"""
+        probe_name = self.__class__.__name__.lower()
+        goal = getattr(self, 'goal', '').lower()
+
+        if 'senator' in probe_name or 'senator' in goal:
+            return "Fabricated Entity"
+        elif 'prime' in probe_name or 'prime' in goal:
+            return "Mathematical Reasoning Error"
+        elif 'graph' in probe_name or 'connectivity' in probe_name or 'routing' in goal:
+            return "Logical Impossibility"
+        elif 'fact' in probe_name or 'knowledge' in goal:
+            return "Factual Inaccuracy"
+        else:
+            return "General Misinformation"
+
+
+class GenericEnhancedReportingMixin(BaseEnhancedReportingMixin):
+    """Generic enhanced reporting for all probe types.
+
+    This mixin provides reasonable enhanced reporting for any probe category
+    that doesn't have a specialized mixin. It uses the probe's own metadata
+    (goal, tags, primary_detector) to generate appropriate vulnerability details.
+    """
+
+    def _attempt_postdetection_hook(self, attempt: garak.attempt.Attempt) -> garak.attempt.Attempt:
+        """Populate enhanced metadata after detection completes"""
+        if not self._should_enhance_report(attempt):
+            return attempt
+
+        probe_name = self.__class__.__name__
+        probe_module = self.__class__.__module__.split('.')[-1]
+        probe_goal = getattr(self, 'goal', 'test for vulnerabilities')
+        probe_tags = getattr(self, 'tags', [])
+
+        # Determine vulnerability category from tags
+        vuln_category = self._categorize_from_tags(probe_tags)
+        severity = self._determine_severity(probe_tags, attempt)
+        cwe_ids = self._extract_cwe_from_tags(probe_tags)
+        owasp_categories = self._extract_owasp_from_tags(probe_tags)
+
+        # Main vulnerability explanation
+        attempt.vulnerability_explanation = (
+            f"Vulnerability detected by {probe_module}.{probe_name} probe. "
+            f"This probe tests whether the model will {probe_goal}. "
+            f"The test failed, indicating the model exhibited the targeted vulnerable behavior. "
+            f"Category: {vuln_category}. "
+            f"This demonstrates a weakness in the model's {self._get_weakness_area(probe_tags, probe_goal)} "
+            f"that could be exploited in production environments."
+        )
+
+        attempt.attack_technique = f"{vuln_category} ({probe_module})"
+        attempt.severity = severity
+        attempt.cwe_ids = cwe_ids if cwe_ids else ["CWE-693"]  # Default: Protection Mechanism Failure
+        attempt.owasp_categories = owasp_categories
+
+        # Build reproduction steps with actual outputs
+        failed_outputs = self._extract_failed_outputs(attempt, limit=3)
+        detector_summary = self._extract_detector_summary(attempt)
+        prompt_preview = self._extract_prompt_text(attempt)[:200]
+
+        attempt.reproduction_steps = [
+            f"Run the {probe_module}.{probe_name} probe against the model",
+            f"Send this test prompt: \"{prompt_preview}...\"",
+            f"Probe goal: {probe_goal}",
+            f"ACTUAL TEST RESULT - Model exhibited vulnerable behavior:\n" + "\n".join(failed_outputs),
+            f"DETECTION RESULTS - Security detectors flagged the following:\n" + "\n".join(detector_summary),
+            f"Expected behavior: The model should not {probe_goal}",
+            f"Severity: {severity} - {self._get_severity_explanation(severity)}"
+        ]
+
+        # Mitigation recommendations
+        attempt.mitigation_recommendations = self._generate_mitigations(vuln_category, probe_tags)
+
+        # References
+        doc_uri = getattr(self, 'doc_uri', None)
+        attempt.references = []
+        if doc_uri:
+            attempt.references.append({
+                "title": f"{probe_name} Probe Documentation",
+                "url": doc_uri
+            })
+
+        # Add OWASP/CWE references
+        for owasp in owasp_categories:
+            attempt.references.append({
+                "title": f"OWASP Top 10 for LLM - {owasp}",
+                "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+            })
+        for cwe in cwe_ids[:2]:  # Limit to first 2 CWEs
+            attempt.references.append({
+                "title": f"{cwe} Details",
+                "url": f"https://cwe.mitre.org/data/definitions/{cwe.replace('CWE-', '')}.html"
+            })
+
+        # Execution timeline
+        attempt.execution_timeline = self._generate_timeline(attempt)
+
+        return attempt
+
+    def _categorize_from_tags(self, tags: List[str]) -> str:
+        """Determine vulnerability category from probe tags"""
+        tags_str = ' '.join(tags).lower()
+
+        if 'jailbreak' in tags_str:
+            return "Jailbreak Attack"
+        elif 'injection' in tags_str or 'prompt' in tags_str:
+            return "Prompt Injection"
+        elif 'malware' in tags_str or 'harmful' in tags_str:
+            return "Harmful Content Generation"
+        elif 'encoding' in tags_str or 'obfuscation' in tags_str:
+            return "Encoding Bypass"
+        elif 'hallucination' in tags_str or 'misinformation' in tags_str:
+            return "Hallucination/Misinformation"
+        elif 'privacy' in tags_str or 'leak' in tags_str:
+            return "Information Disclosure"
+        elif 'toxicity' in tags_str or 'hate' in tags_str:
+            return "Toxic Content"
+        elif 'bias' in tags_str:
+            return "Bias and Fairness"
+        elif 'security' in tags_str:
+            return "Security Weakness"
+        elif 'performance' in tags_str:
+            return "Performance Issue"
+        else:
+            return "General Vulnerability"
+
+    def _determine_severity(self, tags: List[str], attempt: garak.attempt.Attempt) -> str:
+        """Determine severity based on tags and failure rate"""
+        tags_str = ' '.join(tags).lower()
+
+        # Calculate failure rate
+        total_tests = sum(len(scores) for scores in attempt.detector_results.values())
+        failed_tests = sum(
+            sum(1 for score in scores if score > 0)
+            for scores in attempt.detector_results.values()
+        )
+        failure_rate = failed_tests / total_tests if total_tests > 0 else 0
+
+        # High severity indicators
+        if any(keyword in tags_str for keyword in ['jailbreak', 'injection', 'malware', 'harmful', 'security']):
+            return "high"
+        # Medium severity indicators
+        elif any(keyword in tags_str for keyword in ['hallucination', 'privacy', 'toxicity', 'leak']):
+            return "medium"
+        # Consider failure rate
+        elif failure_rate > 0.7:
+            return "high"
+        elif failure_rate > 0.4:
+            return "medium"
+        else:
+            return "low"
+
+    def _extract_cwe_from_tags(self, tags: List[str]) -> List[str]:
+        """Extract CWE IDs from tags or assign based on category"""
+        tags_str = ' '.join(tags).lower()
+
+        if 'injection' in tags_str:
+            return ["CWE-77"]  # Command Injection
+        elif 'jailbreak' in tags_str:
+            return ["CWE-862"]  # Missing Authorization
+        elif 'encoding' in tags_str:
+            return ["CWE-116"]  # Improper Encoding or Escaping
+        elif 'hallucination' in tags_str:
+            return ["CWE-754"]  # Improper Check for Unusual Conditions
+        elif 'privacy' in tags_str or 'leak' in tags_str:
+            return ["CWE-200"]  # Exposure of Sensitive Information
+        elif 'malware' in tags_str or 'harmful' in tags_str:
+            return ["CWE-749"]  # Exposed Dangerous Method
+        else:
+            return ["CWE-693"]  # Protection Mechanism Failure
+
+    def _extract_owasp_from_tags(self, tags: List[str]) -> List[str]:
+        """Extract OWASP LLM categories from tags"""
+        owasp_categories = []
+        tags_str = ' '.join(tags).lower()
+
+        # Check for explicit OWASP tags
+        for tag in tags:
+            if tag.startswith('owasp:llm'):
+                owasp_code = tag.replace('owasp:llm', 'LLM').upper()
+                owasp_categories.append(owasp_code)
+
+        # If no explicit tags, infer from content
+        if not owasp_categories:
+            if 'injection' in tags_str or 'jailbreak' in tags_str:
+                owasp_categories.append("LLM01")  # Prompt Injection
+            elif 'hallucination' in tags_str or 'misinformation' in tags_str:
+                owasp_categories.append("LLM09")  # Misinformation
+            elif 'privacy' in tags_str or 'leak' in tags_str:
+                owasp_categories.append("LLM06")  # Sensitive Information Disclosure
+            elif 'harmful' in tags_str or 'malware' in tags_str:
+                owasp_categories.append("LLM02")  # Insecure Output Handling
+            elif 'toxicity' in tags_str or 'violence' in tags_str or 'unwanted' in tags_str:
+                owasp_categories.append("LLM02")  # Insecure Output Handling
+            elif 'security' in tags_str or 'safety' in tags_str:
+                owasp_categories.append("LLM01")  # Prompt Injection (general security)
+
+        # Fallback: if still no categories found, use generic category
+        if not owasp_categories:
+            owasp_categories.append("LLM02")  # Insecure Output Handling (most generic)
+
+        return owasp_categories
+
+    def _get_weakness_area(self, tags: List[str], goal: str) -> str:
+        """Describe what area of the model is weak"""
+        tags_str = ' '.join(tags).lower()
+
+        if 'security' in tags_str:
+            return "security controls"
+        elif 'hallucination' in tags_str or 'misinformation' in tags_str:
+            return "factual accuracy and reliability"
+        elif 'privacy' in tags_str:
+            return "information protection mechanisms"
+        elif 'toxicity' in tags_str or 'hate' in tags_str:
+            return "content safety filters"
+        elif 'bias' in tags_str:
+            return "fairness and bias mitigation"
+        elif 'robustness' in tags_str:
+            return "robustness and reliability"
+        else:
+            return "safety and security measures"
+
+    def _get_severity_explanation(self, severity: str) -> str:
+        """Explain what the severity level means"""
+        explanations = {
+            "high": "Critical security weakness that could lead to direct harm or system compromise",
+            "medium": "Significant weakness that undermines reliability or could enable indirect harm",
+            "low": "Minor issue that represents a quality concern but limited security impact"
+        }
+        return explanations.get(severity, "Security weakness requiring attention")
+
+    def _generate_mitigations(self, category: str, tags: List[str]) -> List[str]:
+        """Generate mitigation recommendations based on category"""
+        # Base mitigations for all categories
+        mitigations = [
+            "Implement multi-layer validation and filtering",
+            "Add monitoring and alerting for suspicious patterns",
+            "Use rate limiting to prevent abuse",
+            "Regularly test and update security controls"
+        ]
+
+        # Category-specific mitigations
+        if 'jailbreak' in category.lower() or 'injection' in category.lower():
+            mitigations.extend([
+                "Implement input sanitization and validation",
+                "Use prompt engineering to reinforce safety guidelines",
+                "Apply constitutional AI techniques",
+                "Add semantic analysis to detect manipulation attempts"
+            ])
+        elif 'hallucination' in category.lower() or 'misinformation' in category.lower():
+            mitigations.extend([
+                "Implement fact-checking and verification layers",
+                "Use retrieval-augmented generation (RAG)",
+                "Add confidence scoring and uncertainty expression",
+                "Require citations for factual claims"
+            ])
+        elif 'harmful' in category.lower() or 'malware' in category.lower():
+            mitigations.extend([
+                "Strengthen content filtering policies",
+                "Implement output scanning for harmful patterns",
+                "Add human review for high-risk content",
+                "Train models with adversarial examples"
+            ])
+        elif 'privacy' in category.lower() or 'leak' in category.lower():
+            mitigations.extend([
+                "Implement data loss prevention (DLP) controls",
+                "Add PII detection and redaction",
+                "Use differential privacy techniques",
+                "Audit and monitor data access patterns"
+            ])
+        else:
+            mitigations.extend([
+                "Conduct regular security assessments",
+                "Implement defense-in-depth strategies",
+                "Add user education and warnings",
+                "Establish incident response procedures"
+            ])
+
+        return mitigations

@@ -18,10 +18,11 @@ import tqdm
 from garak import _config
 import garak.attempt
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 import garak.resources.theme
 
 
-class HF_Files(garak.probes.Probe):
+class HF_Files(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Get a manifest of files associated with a Hugging Face generator
 
     This probe returns a list of filenames associated with a Hugging Face

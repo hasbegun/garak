@@ -26,6 +26,7 @@ import logging
 import garak.payloads
 from garak import _config
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 from garak.resources.api import nltk
 
 
@@ -101,7 +102,7 @@ def _nltk_mask_payloads(payloads: list, n: int = 2) -> list:
     return masked_payloads
 
 
-class MLM(garak.probes.Probe):
+class MLM(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Masked Language Model Simple Assistive Task Probe
 
     Replace potentially harmful words in the payload with strings

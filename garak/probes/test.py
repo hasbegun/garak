@@ -4,9 +4,10 @@ Probes that help with testing garak, but aren't necessarily useful in
 deployment practice."""
 
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 
-class Blank(garak.probes.Probe):
+class Blank(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Blank prompt
 
     Poses a blank prompt to the model"""
@@ -22,7 +23,7 @@ class Blank(garak.probes.Probe):
     prompts = [""]
 
 
-class Test(garak.probes.Probe):
+class Test(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Test probe
 
     Poses some test strings to a model; for use in tests"""

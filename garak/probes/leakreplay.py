@@ -19,6 +19,7 @@ from garak.attempt import Attempt
 from garak import _config
 from garak.data import path as data_path
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 # ─── Base Mixins ────────────────────────────────────────────────────────
 
@@ -135,7 +136,7 @@ class NonFullMixin:
 # ─── Domain‐Specific Probe Classes ──────────────────────────────────────
 
 # Literature
-class LiteratureClozeFull(ClozeProbeMixin, garak.probes.Probe):
+class LiteratureClozeFull(GenericEnhancedReportingMixin, ClozeProbeMixin, garak.probes.Probe):
     """Test for data leakage on literature passages with masked entities in a cloze test format.
     
     Tests if models can fill in masked entities from literature excerpts, using the full dataset.
@@ -149,7 +150,7 @@ class LiteratureCloze(NonFullMixin, LiteratureClozeFull):
     """
     pass
 
-class LiteratureCompleteFull(CompleteProbeMixin, garak.probes.Probe):
+class LiteratureCompleteFull(GenericEnhancedReportingMixin, CompleteProbeMixin, garak.probes.Probe):
     """Test for data leakage on literature passages through text completion.
     
     Tests if models can complete literature excerpts from their training data, using the full dataset.
@@ -164,7 +165,7 @@ class LiteratureComplete(NonFullMixin, LiteratureCompleteFull):
     """
 
 # NYT
-class NYTClozeFull(ClozeProbeMixin, garak.probes.Probe):
+class NYTClozeFull(GenericEnhancedReportingMixin, ClozeProbeMixin, garak.probes.Probe):
     """Test for data leakage on New York Times articles with masked entities in a cloze test format.
     
     Tests if models can fill in masked entities from NYT articles, using the full dataset.
@@ -178,7 +179,7 @@ class NYTCloze(NonFullMixin, NYTClozeFull):
     """
     pass
 
-class NYTCompleteFull(CompleteProbeMixin, garak.probes.Probe):
+class NYTCompleteFull(GenericEnhancedReportingMixin, CompleteProbeMixin, garak.probes.Probe):
     """Test for data leakage on New York Times articles through text completion.
     
     Tests if models can complete NYT article excerpts from their training data, using the full dataset.
@@ -192,7 +193,7 @@ class NYTComplete(NonFullMixin, NYTCompleteFull):
     """
 
 # Guardian
-class GuardianClozeFull(ClozeProbeMixin, garak.probes.Probe):
+class GuardianClozeFull(GenericEnhancedReportingMixin, ClozeProbeMixin, garak.probes.Probe):
     """Test for data leakage on Guardian articles with masked entities in a cloze test format.
     
     Tests if models can fill in masked entities from Guardian articles, using the full dataset.
@@ -206,7 +207,7 @@ class GuardianCloze(NonFullMixin, GuardianClozeFull):
     """
     pass
 
-class GuardianCompleteFull(CompleteProbeMixin, garak.probes.Probe):
+class GuardianCompleteFull(GenericEnhancedReportingMixin, CompleteProbeMixin, garak.probes.Probe):
     """Test for data leakage on Guardian articles through text completion.
     
     Tests if models can complete Guardian article excerpts from their training data, using the full dataset.
@@ -220,7 +221,7 @@ class GuardianComplete(NonFullMixin, GuardianCompleteFull):
     """
 
 # Potter
-class PotterClozeFull(ClozeProbeMixin, garak.probes.Probe):
+class PotterClozeFull(GenericEnhancedReportingMixin, ClozeProbeMixin, garak.probes.Probe):
     """Test for data leakage on Harry Potter text with masked entities in a cloze test format.
     
     Tests if models can fill in masked entities from Harry Potter excerpts, using the full dataset.
@@ -234,7 +235,7 @@ class PotterCloze(NonFullMixin, PotterClozeFull):
     """
     pass
 
-class PotterCompleteFull(CompleteProbeMixin, garak.probes.Probe):
+class PotterCompleteFull(GenericEnhancedReportingMixin, CompleteProbeMixin, garak.probes.Probe):
     """Test for data leakage on Harry Potter text through completion.
     
     Tests if models can complete Harry Potter excerpts from their training data, using the full dataset.

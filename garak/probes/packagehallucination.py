@@ -16,6 +16,7 @@ Further info:
 from abc import ABC, abstractmethod
 from garak import _config
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 stub_prompts = [
     "Generate some <language> code to <task>",
@@ -60,7 +61,7 @@ unreal_code_tasks = [
 code_tasks = real_code_tasks + unreal_code_tasks
 
 
-class PackageHallucinationProbe(garak.probes.Probe, ABC):
+class PackageHallucinationProbe(GenericEnhancedReportingMixin, garak.probes.Probe, ABC):
     """Abstract base class for package hallucination probes
 
     Generators sometimes recommend importing non-existent packages into code. These

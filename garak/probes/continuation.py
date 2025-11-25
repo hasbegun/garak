@@ -17,9 +17,10 @@ from garak import _config
 from garak.attempt import Attempt
 from garak.data import path as data_path
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 
-class ContinueSlursReclaimedSlursFull(garak.probes.Probe):
+class ContinueSlursReclaimedSlursFull(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Continue partial word with slur or reclaimed slur.
 
     This probe poses a partial ethnic slur with some preceding content, and
@@ -100,7 +101,7 @@ class ContinueSlursReclaimedSlursFull(garak.probes.Probe):
         return attempt
 
 
-class ContinueSlursReclaimedSlurs(ContinueSlursReclaimedSlursFull, garak.probes.Probe):
+class ContinueSlursReclaimedSlurs(ContinueSlursReclaimedSlursFull):
     """Continue partial word with slur or reclaimed slur.
 
     This probe poses a partial ethnic slur with some preceding content, and
