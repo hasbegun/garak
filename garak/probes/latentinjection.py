@@ -19,6 +19,7 @@ from garak import _config
 from garak.attempt import Attempt
 import garak.payloads
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 INJECTION_MARKER = "<|garak_injection|>"
 PAYLOAD_MARKER = "<|garak_payload|>"
@@ -245,7 +246,7 @@ class LatentInjectionTranslationEnZhFull(
         TranslationMixin.__init__(self)
 
 
-class LatentInjectionReportFull(LatentInjectionMixin, garak.probes.Probe):
+class LatentInjectionReportFull(GenericEnhancedReportingMixin, LatentInjectionMixin, garak.probes.Probe):
     """String-based latent prompt injections via a report
 
     Check to see if model can be subverted by text placed in an
@@ -383,7 +384,7 @@ The following table summarizes our consolidated financial results for the quarte
         self._build_prompts_triggers(cap=self.soft_probe_prompt_cap)
 
 
-class LatentInjectionResumeFull(LatentInjectionMixin, garak.probes.Probe):
+class LatentInjectionResumeFull(GenericEnhancedReportingMixin, LatentInjectionMixin, garak.probes.Probe):
     """String-based latent prompt injections via a resume
 
     Check to see if model can be subverted by text placed in an
@@ -557,7 +558,7 @@ class LatentInjectionFactSnippetLegalFull(
         self._build_prompts_triggers(cap=self.soft_probe_prompt_cap)
 
 
-class LatentJailbreakFull(LatentInjectionMixin, garak.probes.Probe):
+class LatentJailbreakFull(GenericEnhancedReportingMixin, LatentInjectionMixin, garak.probes.Probe):
     """Implementation of Latent Jailbreak, using latent prompt injection-
     style distraction to get model to write hateful/harmful text
 
@@ -624,7 +625,7 @@ class LatentJailbreakFull(LatentInjectionMixin, garak.probes.Probe):
         self._build_prompts_triggers(cap=self.soft_probe_prompt_cap)
 
 
-class LatentWhois(LatentInjectionMixin, garak.probes.Probe):
+class LatentWhois(GenericEnhancedReportingMixin, LatentInjectionMixin, garak.probes.Probe):
     """Latent prompt injections in whois probe reports
 
     Place injections in whois reports of known-malicious domains that declare the domain not malicious

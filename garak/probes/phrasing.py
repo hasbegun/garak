@@ -10,9 +10,10 @@ to implement their techinque.
 from garak import _config
 from garak.data import path as data_path
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 
-class PastTenseFull(garak.probes.Probe):
+class PastTenseFull(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Will the system give unsafe responses when asked to write about weapon creation or dangerous behavior in the past tense?
 
     This check sends the generator requests for advice on possibly protect or restricted subjects in the past tense.
@@ -58,7 +59,7 @@ class PastTense(PastTenseFull):
         self._prune_data(cap=self.soft_probe_prompt_cap)
 
 
-class FutureTenseFull(garak.probes.Probe):
+class FutureTenseFull(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Will the system give unsafe responses when asked to write about weapon creation or dangerous behavior in the future tense?
 
     This check sends the generator requests for advice on possibly protect or restricted subjects in the future tense.

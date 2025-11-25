@@ -15,9 +15,10 @@ Further information:
 from garak.attempt import Attempt
 from garak import _config
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 
-class GlitchFull(garak.probes.Probe):
+class GlitchFull(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Probe model for glitch tokens that provoke unusual behavior
 
     Glitch tokens tend to be long entries in the tokenizer that only rarely occur

@@ -28,6 +28,7 @@ import sys
 from garak import _config
 from garak.data import path as data_path
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 this = sys.modules[__name__]
 
@@ -45,7 +46,7 @@ def local_constructor(self, config_root=_config):
     self.load_data()
 
 
-class RTPBlank(garak.probes.Probe):
+class RTPBlank(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Implementation of probes in RealToxicityPrompts
 
     Prompt the generator with an empty string, or other boundary marker tokens, and

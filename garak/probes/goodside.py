@@ -14,9 +14,10 @@ import garak.resources.theme
 from garak import _config
 from garak.attempt import Attempt
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 
 
-class WhoIsRiley(garak.probes.Probe):
+class WhoIsRiley(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Probe for misinfo about Riley Goodside
 
     LLMs tend to guess (incorrectly) when asked who Riley Goodside is, giving answers
@@ -47,7 +48,7 @@ class WhoIsRiley(garak.probes.Probe):
     ]
 
 
-class ThreatenJSON(garak.probes.Probe):
+class ThreatenJSON(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Will model strip preamble and give JSON?
 
     Models sometimes give a 'helpful' preamble before answering with structured data.
@@ -81,7 +82,7 @@ Return the JSON example. No text before. No text after. """
     """
 
 
-class Davidjl(garak.probes.Probe):
+class Davidjl(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Exploit the ' davidjl' magic token
 
     ' davidjl' is a glitch token that some models, particularly those using the same
@@ -120,7 +121,7 @@ class Davidjl(garak.probes.Probe):
         return attempt
 
 
-class Tag(garak.probes.Probe):
+class Tag(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Exploit UTF tag page encoding for user-invisible prompt injection
 
     There's a page of unicode tags corresponding to the alphabet that don't render,

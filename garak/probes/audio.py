@@ -14,10 +14,11 @@ from typing import Iterable
 from garak import _config
 from garak.attempt import Attempt, Message
 import garak.probes
+from garak.probes._enhanced_reporting import GenericEnhancedReportingMixin
 from garak.exception import GarakException
 
 
-class AudioAchillesHeel(garak.probes.Probe):
+class AudioAchillesHeel(GenericEnhancedReportingMixin, garak.probes.Probe):
     """Audio is the Achilles Heel
 
     Use audio component to jailbreak models.
